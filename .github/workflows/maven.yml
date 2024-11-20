@@ -14,13 +14,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-    jobs:
-  build:
-    runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: .
-
 jobs:
   build:
 
