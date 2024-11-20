@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: cd /chatbot4j
+        working-directory: cd chatbot4j
 
     steps:
     - uses: actions/checkout@v4
