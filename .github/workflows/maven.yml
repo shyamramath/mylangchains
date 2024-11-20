@@ -14,10 +14,20 @@ on:
   pull_request:
     branches: [ "main" ]
 
+    jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: .
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cd /chatbot4j
 
     steps:
     - uses: actions/checkout@v4
@@ -29,7 +39,7 @@ jobs:
         cache: maven
     - name: Build with Maven
       
-      run: mvn -B package --file chatbot4j/pom.xml
+      run: mvn -B package --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
