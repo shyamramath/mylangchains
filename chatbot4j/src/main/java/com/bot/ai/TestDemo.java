@@ -23,34 +23,71 @@ public class TestDemo {
 
     public static void main(String[] args) {
 
+    }
+
+    public static String main1(String message) {
+
         EmbeddingStore<TextSegment> embeddingStore = PgVectorEmbeddingStore.builder()
                 .host("localhost")
                 .port(5432)
-                .database("escuela_database")
+                .database("postgres")
                 .user("escuela_user")
                 .password("escuela_password")
                 .table("test")
                 .dimension(384)
                 .build();
 
-        embeddingStore.removeAll();
-        loadData(embeddingStore);
-        readData(embeddingStore);
+//        embeddingStore.removeAll();
+//        loadData(embeddingStore);
+//        readData(embeddingStore);
+        return readData(embeddingStore,message);
+    }
+
+    public static String readData(EmbeddingStore<TextSegment> embeddingStore,String message) {
+        EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+//        Embedding queryEmbedding = embeddingModel.embed("What is the status of the Students with ").content();
+        Embedding queryEmbedding = embeddingModel.embed(message).content();
+        Filter onlyForUser1 = metadataKey("studentID").isEqualTo("1");
+//        Filter filter2 = metadataKey("status").isEqualTo("Failed");/**/
+
+
+        EmbeddingSearchRequest embeddingSearchRequest1 = EmbeddingSearchRequest.builder()
+                .queryEmbedding(queryEmbedding)
+//                .filter(onlyForUser1)
+//                .filter(filter2)
+                .build();
+
+        StringBuilder response = new StringBuilder();
+        EmbeddingSearchResult<TextSegment> embeddingSearchResult1 = embeddingStore.search(embeddingSearchRequest1);
+        for(EmbeddingMatch<TextSegment> match: embeddingSearchResult1.matches()){
+            System.out.println(match.score());
+//            System.out.println(match.embedded().text());
+            response.append(match.embedded().text());
+        }
+
+        // Filter for students with grade First Class
+        EmbeddingSearchRequest embeddingSearchRequest2 = EmbeddingSearchRequest.builder()
+                .queryEmbedding(queryEmbedding)
+                .filter(metadataKey("grade").isEqualTo("First Class"))
+                .build();
+
+        return response.toString();
 
     }
 
 
     public static void readData(EmbeddingStore<TextSegment> embeddingStore) {
         EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
-        Embedding queryEmbedding = embeddingModel.embed("What is the status of the Students with ").content();
+//        Embedding queryEmbedding = embeddingModel.embed("What is the status of the Students with ").content();
+        Embedding queryEmbedding = embeddingModel.embed("list all students with grade First Class").content();
         Filter onlyForUser1 = metadataKey("studentID").isEqualTo("1");
-        Filter filter2 = metadataKey("status").isEqualTo("Failed");/**/
+//        Filter filter2 = metadataKey("status").isEqualTo("Failed");/**/
 
 
         EmbeddingSearchRequest embeddingSearchRequest1 = EmbeddingSearchRequest.builder()
                 .queryEmbedding(queryEmbedding)
 //                .filter(onlyForUser1)
-                .filter(filter2)
+//                .filter(filter2)
                 .build();
 
         EmbeddingSearchResult<TextSegment> embeddingSearchResult1 = embeddingStore.search(embeddingSearchRequest1);
@@ -59,8 +96,18 @@ public class TestDemo {
             System.out.println(match.embedded().text());
         }
 
+        // Filter for students with grade First Class
+        EmbeddingSearchRequest embeddingSearchRequest2 = EmbeddingSearchRequest.builder()
+                .queryEmbedding(queryEmbedding)
+                .filter(metadataKey("grade").isEqualTo("First Class"))
+                .build();
+
     }
 
+    /**
+     *
+     * @param embeddingStore
+     */
     public static void loadData(EmbeddingStore<TextSegment> embeddingStore){
 
         for(Student student:getStudentlist()){
@@ -93,13 +140,15 @@ public class TestDemo {
         Student student2= new Student("2","Ambili","Passed","Second Class");
         Student student3= new Student("3","Ameya","Passed","Third Class");
         Student student4= new Student("4","Dhyam","Passed","Fourth Class");
-        Student student5= new Student("4","Jadeja","Failed","Fifth Class");
+        Student student5= new Student("5","Jadeja","Failed","Fifth Class");
+        Student student6= new Student("4","Lamba","Failed","Fourth Class");
         List<Student> studentlist= new ArrayList<>();
         studentlist.add(student);
         studentlist.add(student2);
         studentlist.add(student3);
         studentlist.add(student4);
         studentlist.add(student5);
+        studentlist.add(student6);
         return studentlist;
     }
 
